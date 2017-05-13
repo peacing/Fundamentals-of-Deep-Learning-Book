@@ -30,7 +30,7 @@ def filter_summary(V, weight_shape):
     iy = weight_shape[1]
     cx, cy = 8, 8
     V_T = tf.transpose(V, (3, 0, 1, 2))
-    tf.image_summary("filters", V_T, max_images=64) 
+    tf.summary.image("filters", V_T, max_outputs=64) 
 
 def conv2d(input, weight_shape, bias_shape, visualize=False):
     incoming = weight_shape[0] * weight_shape[1] * weight_shape[2]
@@ -90,12 +90,12 @@ def inference(x, keep_prob):
 
 
 def loss(output, y):
-    xentropy = tf.nn.sparse_softmax_cross_entropy_with_logits(output, tf.cast(y, tf.int64))    
+    xentropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=output, labels=tf.cast(y, tf.int64))    
     loss = tf.reduce_mean(xentropy)
     return loss
 
 def training(cost, global_step):
-    tf.scalar_summary("cost", cost)
+    tf.summary.scalar("cost", cost)
     optimizer = tf.train.AdamOptimizer(learning_rate)
     train_op = optimizer.minimize(cost, global_step=global_step)
     return train_op
@@ -103,7 +103,7 @@ def training(cost, global_step):
 def evaluate(output, y):
     correct_prediction = tf.equal(tf.cast(tf.argmax(output, 1), dtype=tf.int32), y)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    tf.scalar_summary("validation error", (1.0 - accuracy))
+    tf.summary.scalar("validation error", (1.0 - accuracy))
     return accuracy
 
 if __name__ == '__main__':
@@ -133,13 +133,13 @@ if __name__ == '__main__':
 
                 eval_op = evaluate(output, y)
 
-                summary_op = tf.merge_all_summaries()
+                summary_op = tf.summary.merge_all()
 
                 saver = tf.train.Saver()
 
                 sess = tf.Session()
 
-                summary_writer = tf.train.SummaryWriter("conv_cifar_logs/",
+                summary_writer = tf.summary.FileWriter("conv_cifar_logs/",
                                                         graph_def=sess.graph_def)
 
                 
