@@ -17,3 +17,6 @@ dnc/babi-model
 
 # Logs
 *logs*/
+
+# venv
+fenv/
